@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Thi Aptis Full: Reading, Listening, GV & Idioms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .draggable-item { cursor: grab; transition: all 0.2s; touch-action: none; }
+        .draggable-item:active { cursor: grabbing; transform: scale(1.01); z-index: 10; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .dragging { opacity: 0.6; background: #e0e7ff; border: 2px dashed #6366f1; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        button:active { transform: scale(0.98); }
+        .tab-btn { white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const IconSpeaker = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>;
+        const IconStop = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>;
+        const IconSearch = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
+        const IconEye = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>;
+
+        // --- DATA READING PART 1 ---
+        const dataPart1 = [
+            { id: 1, title: "1. Dear Tom (Station/Stops...)", context: "Dear Tom, I'm happy that you are coming to my place.", segments: [ { text: "When you are at the train ", type: "text" }, { id: "q1", options: [{ word: "school", mean: "trường học" }, { word: "station", mean: "nhà ga" }, { word: "river", mean: "sông" }], correct: "station" }, { text: ", go to the main gate. The bus ", type: "text" }, { id: "q2", options: [{ word: "stops", mean: "trạm dừng" }, { word: "town", mean: "thị trấn" }, { word: "place", mean: "địa điểm" }], correct: "stops" }, { text: " are near. My house is on Parkon Street. It's ", type: "text" }, { id: "q3", options: [{ word: "tired", mean: "mệt" }, { word: "green", mean: "xanh lá" }, { word: "color", mean: "màu" }], correct: "green" }, { text: ", so you can not miss it. After you come, we will have ", type: "text" }, { id: "q4", options: [{ word: "dinner", mean: "bữa tối" }, { word: "food", mean: "thức ăn" }, { word: "eat", mean: "ăn" }], correct: "dinner" }, { text: ". In the evening, we can watch some ", type: "text" }, { id: "q5", options: [{ word: "films", mean: "phim" }, { word: "animals", mean: "động vật" }, { word: "bread", mean: "bánh mì" }], correct: "films" }, { text: " together. Talk to you soon! Anna", type: "text" } ] },
+            { id: 2, title: "2. Shopping (Window/Buy...)", context: "I went shopping specifically for shoes.", segments: [ {text: "I saw some shoes in the ", type: "text"}, {id: "q1", options: [{word: "market", mean: "chợ"}, {word: "window", mean: "cửa sổ"}, {word: "shoe", mean: "giày"}], correct: "window"}, {text: " of one store. I didn't ", type: "text"}, {id: "q2", options: [{word: "eat", mean: "ăn"}, {word: "drink", mean: "uống"}, {word: "buy", mean: "mua"}], correct: "buy"}, {text: " it. I buy some food at the ", type: "text"}, {id: "q3", options: [{word: "classroom", mean: "lớp"}, {word: "park", mean: "công viên"}, {word: "market", mean: "chợ"}], correct: "market"}, {text: " I ate ", type: "text"}, {id: "q4", options: [{word: "watch", mean: "đồng hồ"}, {word: "door", mean: "cửa"}, {word: "cake", mean: "bánh"}], correct: "cake"}, {text: ". I ", type: "text"}, {id: "q5", options: [{word: "ate", mean: "ăn"}, {word: "saw", mean: "thấy"}, {word: "watched", mean: "xem"}], correct: "watched"} ] },
+            { id: 3, title: "3. Hi James (Love/Small shop...)", context: "Hi James, I'm living in a new apartment now.", segments: [ { text: "I ", type: "text" }, { id: "q1", options: [{word: "run", mean: "chạy"}, {word: "should", mean: "nên"}, {word: "love", mean: "yêu thích"}], correct: "love" }, { text: " the area where I live now. I have a kitchen, but it's very ", type: "text" }, { id: "q2", options: [{word: "small", mean: "nhỏ"}, {word: "beautiful", mean: "đẹp"}, {word: "lively", mean: "sống động"}], correct: "small" }, { text: ". I work at a ", type: "text" }, { id: "q3", options: [{word: "global", mean: "toàn cầu"}, {word: "shop", mean: "cửa hàng"}, {word: "cafe", mean: "quán cà phê"}], correct: "shop" }, { text: " and I sell clothes. Everyday, I talk to many ", type: "text" }, { id: "q4", options: [{word: "animals", mean: "động vật"}, {word: "balloons", mean: "bóng bay"}, {word: "people", mean: "mọi người"}], correct: "people" }, { text: ". I am on my holiday and I am excited that I can ", type: "text" }, { id: "q5", options: [{word: "visit", mean: "thăm"}, {word: "return", mean: "trở lại"}, {word: "invest", mean: "đầu tư"}], correct: "visit" }, { text: " you soon. Write soon,", type: "text" } ] },
+            { id: 4, title: "4. Dear Jane (Morning/Friends...)", context: "Dear Jane, I want to be healthier, so I exercise regularly.", segments: [ { text: "In the ", type: "text" }, { id: "q1", options: [{word: "winter", mean: "mùa đông"}, {word: "morning", mean: "buổi sáng"}, {word: "chair", mean: "cái ghế"}], correct: "morning" }, { text: ", I cycle to work. My ", type: "text" }, { id: "q2", options: [{word: "teacher", mean: "giáo viên"}, {word: "shoes", mean: "đôi giày"}, {word: "friends", mean: "bạn bè"}], correct: "friends" }, { text: " cycle to work with me. Therefore, I ", type: "text" }, { id: "q3", options: [{word: "leave", mean: "để lại"}, {word: "sing", mean: "hát"}, {word: "play", mean: "chơi"}], correct: "leave" }, { text: " my car at my house. I feel ", type: "text" }, { id: "q4", options: [{word: "water", mean: "nước"}, {word: "good", mean: "tốt/khỏe"}, {word: "fast", mean: "nhanh"}], correct: "good" }, { text: " after cycling to work. Then, I drink water and eat healthy ", type: "text" }, { id: "q5", options: [{word: "food", mean: "thức ăn"}, {word: "phone", mean: "điện thoại"}, {word: "river", mean: "sông"}], correct: "food" } ] },
+            { id: 5, title: "5. Hi Sarah (Near/Friendly...)", context: "Hi Sarah, I hope you're doing well!", segments: [ { text: "The new office is located ", type: "text" }, { id: "q1", options: [{word: "near", mean: "gần"}, {word: "far", mean: "xa"}, {word: "away", mean: "cách xa"}], correct: "near" }, { text: " a great coffee shop, which is quite convenient. It's always ", type: "text" }, { id: "q2", options: [{word: "unfriendly", mean: "không thân thiện"}, {word: "friendly", mean: "thân thiện"}, {word: "harsh", mean: "gay gắt"}], correct: "friendly" }, { text: " to work with a team that collaborates so well. I need to ", type: "text" }, { id: "q3", options: [{word: "stop", mean: "dừng"}, {word: "ignore", mean: "phớt lờ"}, {word: "practise", mean: "luyện tập"}], correct: "practise" }, { text: " my presentation skills before the big meeting next week. Please take some time to ", type: "text" }, { id: "q4", options: [{word: "look", mean: "nhìn"}, {word: "read", mean: "đọc"}, {word: "write", mean: "viết"}], correct: "read" }, { text: " through the proposal again and provide your feedback. I really appreciate your help, ", type: "text" }, { id: "q5", options: [{word: "so", mean: "vì vậy"}, {word: "very", mean: "rất"}, {word: "too", mean: "quá/cũng"}], correct: "so" }, { text: " let me know if you have any questions.", type: "text" } ] },
+            { id: 6, title: "6. Sick/Read/Meeting...", context: "Work situation update.", segments: [ { text: "My colleague didn't go to work today because he is ", type: "text" }, { id: "q1", options: [{word: "sick", mean: "bệnh/ốm"}, {word: "happy", mean: "vui vẻ"}, {word: "excited", mean: "hào hứng"}], correct: "sick" }, { text: ". I am going to ", type: "text" }, { id: "q2", options: [{word: "sing", mean: "hát"}, {word: "read", mean: "đọc"}, {word: "speak", mean: "nói"}], correct: "read" }, { text: " 3 reports this afternoon. Next week I have an important ", type: "text" }, { id: "q3", options: [{word: "sleep", mean: "giấc ngủ"}, {word: "fun", mean: "niềm vui"}, {word: "meeting", mean: "cuộc họp"}], correct: "meeting" }, { text: " with Ms.Hanna. My telephone in the office is always ", type: "text" }, { id: "q4", options: [{word: "ringing", mean: "đổ chuông"}, {word: "speaking", mean: "nói"}, {word: "talking", mean: "nói chuyện"}], correct: "ringing" }, { text: ". I want to ", type: "text" }, { id: "q5", options: [{word: "drink", mean: "uống"}, {word: "eat", mean: "ăn"}, {word: "teach", mean: "dạy"}], correct: "drink" }, { text: " coffee with a friend after all.", type: "text" } ] },
+            { id: 7, title: "7. Early/Lunch/Leave...", context: "My daily routine.", segments: [ { text: "I start ", type: "text" }, { id: "q1", options: [{word: "sleep", mean: "ngủ"}, {word: "early", mean: "sớm"}, {word: "angry", mean: "tức giận"}], correct: "early" }, { text: " in the morning. I have ", type: "text" }, { id: "q2", options: [{word: "lunch", mean: "bữa trưa"}, {word: "bed", mean: "giường"}, {word: "tutor", mean: "gia sư"}], correct: "lunch" }, { text: ". I ", type: "text" }, { id: "q3", options: [{word: "go", mean: "đi"}, {word: "leave", mean: "rời khỏi"}, {word: "return", mean: "trở về"}], correct: "leave" }, { text: " the office. I go home in my new ", type: "text" }, { id: "q4", options: [{word: "bag", mean: "túi xách"}, {word: "jeans", mean: "quần bò"}, {word: "car", mean: "xe hơi"}], correct: "car" }, { text: " to work when I feel ", type: "text" }, { id: "q5", options: [{word: "sleepy", mean: "buồn ngủ"}, {word: "angry", mean: "tức giận"}, {word: "alert", mean: "tỉnh táo"}], correct: "sleepy" } ] },
+            { id: 8, title: "8. Dear Mum and Dad (Friendly/Walk...)", context: "Dear Mum and Dad, I just got here.", segments: [ { text: "Everyone is ", type: "text" }, { id: "q1", options: [{word: "friendly", mean: "thân thiện"}, {word: "melty", mean: "tan chảy"}, {word: "noisy", mean: "ồn ào"}], correct: "friendly" }, { text: ". My flat is near the university, so I can ", type: "text" }, { id: "q2", options: [{word: "train", mean: "xe lửa"}, {word: "sleep", mean: "ngủ"}, {word: "walk", mean: "đi bộ"}], correct: "walk" }, { text: " to my class. There is a girl living with me, I met her for the ", type: "text" }, { id: "q3", options: [{word: "very", mean: "rất"}, {word: "first", mean: "đầu tiên"}, {word: "one", mean: "một"}], correct: "first" }, { text: " time. She is from France and she can ", type: "text" }, { id: "q4", options: [{word: "talk", mean: "nói chuyện"}, {word: "say", mean: "nói rằng"}, {word: "speak", mean: "nói (ngôn ngữ)"}], correct: "speak" }, { text: " 5 languages. We eat dinner ", type: "text" }, { id: "q5", options: [{word: "toward", mean: "về phía"}, {word: "together", mean: "cùng nhau"}, {word: "another", mean: "khác"}], correct: "together" }, { text: ". Love. Helen.", type: "text" } ] },
+            { id: 9, title: "9. Miss/Called/Ready...", context: "Making plans.", segments: [ { text: "I imagine you don't want to ", type: "text" }, { id: "q1", options: [{word: "love", mean: "yêu"}, {word: "remember", mean: "nhớ"}, {word: "miss", mean: "bỏ lỡ"}], correct: "miss" }, { text: " this. I ", type: "text" }, { id: "q2", options: [{word: "called", mean: "đã gọi"}, {word: "told", mean: "đã kể"}, {word: "said", mean: "đã nói"}], correct: "called" }, { text: " you earlier but you were not home. Can you be ", type: "text" }, { id: "q3", options: [{word: "early", mean: "sớm"}, {word: "sleepy", mean: "buồn ngủ"}, {word: "ready", mean: "sẵn sàng"}], correct: "ready" }, { text: " before 7pm? I can ", type: "text" }, { id: "q4", options: [{word: "hold", mean: "cầm"}, {word: "meet", mean: "gặp"}, {word: "miss", mean: "nhớ"}], correct: "meet" }, { text: " you at your place then. Don't have too much ", type: "text" }, { id: "q5", options: [{word: "talk", mean: "chuyện trò"}, {word: "pencil", mean: "bút chì"}, {word: "dinner", mean: "bữa tối"}], correct: "dinner" }, { text: " because we're going to eat cake.", type: "text" } ] },
+            { id: 10, title: "10. Balance/Statement...", context: "Business check.", segments: [ { text: "The budget doesn't ", type: "text" }, { id: "q1", options: [{word: "work", mean: "làm việc"}, {word: "count", mean: "đếm"}, {word: "balance", mean: "cân đối"}], correct: "balance" }, { text: ". Could you get the financial ", type: "text" }, { id: "q2", options: [{word: "department", mean: "phòng ban"}, {word: "statement", mean: "báo cáo"}, {word: "accountant", mean: "kế toán viên"}], correct: "statement" }, { text: "? I ", type: "text" }, { id: "q3", options: [{word: "sure", mean: "chắc chắn"}, {word: "assure", mean: "đảm bảo"}, {word: "think", mean: "nghĩ"}], correct: "think" }, { text: " it will help. Read the information ", type: "text" }, { id: "q4", options: [{word: "beautifully", mean: "đẹp đẽ"}, {word: "fluently", mean: "trôi chảy"}, {word: "slowly", mean: "chậm rãi"}], correct: "slowly" }, { text: " not quickly. Send me the results ", type: "text" }, { id: "q5", options: [{word: "when", mean: "khi"}, {word: "before", mean: "trước khi"}, {word: "between", mean: "giữa"}], correct: "before" }, { text: " you go home, not after.", type: "text" } ] },
+            { id: 11, title: "11. Live/Share...", context: "Living situation.", segments: [ { text: "I ", type: "text" }, { id: "q1", options: [{word: "go", mean: "đi"}, {word: "live", mean: "sống"}, {word: "walk", mean: "đi bộ"}], correct: "live" }, { text: " in a flat. I ", type: "text" }, { id: "q2", options: [{word: "share", mean: "chia sẻ"}, {word: "drink", mean: "uống"}, {word: "hold", mean: "cầm"}], correct: "share" }, { text: " it with my friend. We are in the same ", type: "text" }, { id: "q3", options: [{word: "door", mean: "cửa"}, {word: "class", mean: "lớp học"}, {word: "chair", mean: "ghế"}], correct: "class" }, { text: ". We ", type: "text" }, { id: "q4", options: [{word: "drive", mean: "lái xe"}, {word: "smile", mean: "cười"}, {word: "say", mean: "nói"}], correct: "drive" }, { text: " to work. We like to ", type: "text" }, { id: "q5", options: [{word: "hold", mean: "cầm"}, {word: "cook", mean: "nấu ăn"}, {word: "melt", mean: "tan chảy"}], correct: "cook" }, { text: " dinner.", type: "text" } ] },
+            { id: 12, title: "12. Clear/Sun/Enjoyable...", context: "Holiday vibes.", segments: [ { text: "The water is ", type: "text" }, { id: "q1", options: [{word: "sour", mean: "chua"}, {word: "clear", mean: "trong veo"}, {word: "see", mean: "nhìn"}], correct: "clear" }, { text: ". The ", type: "text" }, { id: "q2", options: [{word: "wind", mean: "gió"}, {word: "dust", mean: "bụi"}, {word: "sun", mean: "mặt trời"}], correct: "sun" }, { text: " is out. I have an ", type: "text" }, { id: "q3", options: [{word: "tired", mean: "mệt"}, {word: "enjoyable", mean: "thú vị"}, {word: "good", mean: "tốt"}], correct: "enjoyable" }, { text: ". After ", type: "text" }, { id: "q4", options: [{word: "working", mean: "làm việc"}, {word: "sleeping", mean: "ngủ"}, {word: "eating", mean: "ăn"}], correct: "working" }, { text: " so hard. I hope to ", type: "text" }, { id: "q5", options: [{word: "tell", mean: "kể"}, {word: "read", mean: "đọc"}, {word: "forward", mean: "chuyển tiếp"}], correct: "read" }, { text: " your letter", type: "text" } ] },
+            { id: 13, title: "13. Window/Market (Yesterday...)", context: "Yesterday, I looked through the...", segments: [ { text: "Yesterday, I looked through the ", type: "text" }, { id: "q1", options: [{word: "window", mean: "cửa sổ"}, {word: "wall", mean: "tường"}, {word: "floor", mean: "sàn nhà"}], correct: "window" }, { text: " and noticed that it was a nice day, So I went to the ", type: "text" }, { id: "q2", options: [{word: "school", mean: "trường học"}, {word: "hospital", mean: "bệnh viện"}, {word: "market", mean: "chợ"}], correct: "market" }, { text: " to pick up some groceries. I found a delicious chocolate ", type: "text" }, { id: "q3", options: [{word: "cake", mean: "bánh ngọt"}, {word: "salad", mean: "sa lát"}, {word: "fruit", mean: "trái cây"}], correct: "cake" }, { text: ". After that, I decided to ", type: "text" }, { id: "q4", options: [{word: "buy", mean: "mua"}, {word: "sell", mean: "bán"}, {word: "return", mean: "trả lại"}], correct: "buy" }, { text: " some fresh vegetables for dinner. While I was there, I ", type: "text" }, { id: "q5", options: [{word: "ate", mean: "ăn"}, {word: "saw", mean: "nhìn thấy"}, {word: "watched", mean: "xem"}], correct: "saw" }, { text: " a cooking magazine that gave me some great ideas.", type: "text" } ] },
+            { id: 14, title: "14. Great/Boat...", context: "Weekend trip.", segments: [ { text: "The weather is ", type: "text" }, { id: "q1", options: [{word: "cheap", mean: "rẻ"}, {word: "expensive", mean: "đắt"}, {word: "great", mean: "tuyệt vời"}], correct: "great" }, { text: ". We are on the ", type: "text" }, { id: "q2", options: [{word: "city", mean: "thành phố"}, {word: "countryside", mean: "nông thôn"}, {word: "boat", mean: "thuyền"}], correct: "boat" }, { text: ". We eat dinner ", type: "text" }, { id: "q3", options: [{word: "after", mean: "sau khi"}, {word: "then", mean: "sau đó"}, {word: "before", mean: "trước khi"}], correct: "then" }, { text: " we go to church. We are going to ", type: "text" }, { id: "q4", options: [{word: "drive", mean: "lái xe"}, {word: "see", mean: "nhìn"}, {word: "talk", mean: "nói"}], correct: "drive" }, { text: " around. I hope the weather isn't ", type: "text" }, { id: "q5", options: [{word: "too", mean: "quá"}, {word: "to", mean: "đến/để"}, {word: "on", mean: "trên"}], correct: "too" }, { text: " hot.", type: "text" } ] },
+            { id: 15, title: "15. Just/Too...", context: "Shopping for a gift.", segments: [ { text: "It is ", type: "text" }, { id: "q1", options: [{word: "yet", mean: "chưa"}, {word: "not", mean: "không"}, {word: "just", mean: "vừa đúng"}], correct: "just" }, { text: " what I like. And it is the perfect color, ", type: "text" }, { id: "q2", options: [{word: "so", mean: "vì vậy"}, {word: "too", mean: "nữa/cũng vậy"}, {word: "to", mean: "đến"}], correct: "too" }, { text: ". I am going to wear it ", type: "text" }, { id: "q3", options: [{word: "to", mean: "đến"}, {word: "on", mean: "trên"}, {word: "at", mean: "tại"}], correct: "to" }, { text: " my birthday party. I will save you ", type: "text" }, { id: "q4", options: [{word: "many", mean: "nhiều"}, {word: "none", mean: "không có gì"}, {word: "some", mean: "một ít"}], correct: "some" }, { text: " cake. ", type: "text" }, { id: "q5", options: [{word: "Give", mean: "Gửi/Cho"}, {word: "Hold", mean: "Giữ"}, {word: "Receive", mean: "Nhận"}], correct: "Give" }, { text: " my love to everyone.", type: "text" } ] },
+            { id: 16, title: "16. Home/Drive...", context: "New location.", segments: [ { text: "My ", type: "text" }, { id: "q1", options: [{word: "home", mean: "nhà"}, {word: "car", mean: "xe hơi"}, {word: "cat", mean: "mèo"}], correct: "home" }, { text: " is now far from work. I have to ", type: "text" }, { id: "q2", options: [{word: "swim", mean: "bơi"}, {word: "drive", mean: "lái xe"}, {word: "dance", mean: "nhảy"}], correct: "drive" }, { text: " to work. I sometimes meet ", type: "text" }, { id: "q3", options: [{word: "furniture", mean: "nội thất"}, {word: "animals", mean: "động vật"}, {word: "friends", mean: "bạn bè"}], correct: "friends" }, { text: " at the coffee shop for lunch. We walk in the ", type: "text" }, { id: "q4", options: [{word: "park", mean: "công viên"}, {word: "library", mean: "thư viện"}, {word: "office", mean: "văn phòng"}], correct: "park" }, { text: " sometimes. The trees are ", type: "text" }, { id: "q5", options: [{word: "ugly", mean: "xấu xí"}, {word: "pretty", mean: "xinh đẹp"}, {word: "noisy", mean: "ồn ào"}], correct: "pretty" }, { text: " so we like looking at them.", type: "text" } ] }
+        ];
+
+        // --- READING PART 2-3 ---
+        const dataPart23 = [
+            { id: 1, title: "1. Making films", fixed: "Here are some ideas to help you talk about making films", items: [ "The films in that period were different from the films of today.", "This is because they were black and white, and there was no sound.", "In addition to these technical limitations, film producers also had a very low budget", "This lack of money mostly affected actors, and they didn't earn much", "Things have changed over time, and some of them have earned millions of dollars" ], translation: "Đây là một số ý tưởng giúp bạn nói về việc làm phim..." },
+            { id: 2, title: "2. Weekend activities", fixed: "This is what happened during the weekend race and game", items: [ "It started early on Saturday morning with a ten-mile race for adults.", "Sixty men and women ran in this, and Ms Kamur won with a very fast time", "After receiving the prize, the children's activities and competitions began.", "These activities included football, jumping, and swimming, and they had lots of fun.", "They were all very hungry after all these, so they enjoyed tasty food and drinks with their parents" ], translation: "Đây là những gì đã xảy ra trong cuộc đua và trò chơi cuối tuần..." },
+            { id: 3, title: "3. The famous singer", fixed: "Jaden Nobelton is just 18 years old and he is a well-known singer.", items: [ "Before becoming famous at his age, he studied art and music in high school.", "During his studies, he learned about creativity and singing on stage.", "In these performances, he often wears bright clothes and paints his face.", "His strange dressing and his songs made him attract attention.", "Many people followed him on social media and he became a popular singer." ], translation: "Jaden Nobelton mới 18 tuổi và anh ấy là một ca sĩ nổi tiếng..." },
+            { id: 6, title: "6. History of travel", fixed: "Travelling has changed over time.", items: [ "In the past, only very rich people could afford to travel long distances.", "The invention of cars and trains had changed everything and made travelling cheaper.", "After these two means of transport, travelling becomes even easier with aeroplanes.", "Because flying with them is so fast, more people now go abroad for holiday and business.", "It is more convenient to travel to other part of the world due to the improvement in Transports" ], translation: "Du lịch đã thay đổi theo thời gian..." },
+            { id: 9, title: "9. A new cafe in town", fixed: "There was a new cafe in town so I decided to give it a try.", items: [ "It was full of people, and the staff were working hard on their first day.", "Despite the crowd, they found me a nice table and brought me a menu.", "When I first looked at the menu, I was disappointed since I hoped to see a variety of dishes.", "I had to choose one of those, so I decided to choose the most expensive sandwich.", "It was really good with cheese topping, and I would definitely go back to this place." ], translation: "Có một quán cà phê mới trong thị trấn..." },
+            { id: 10, title: "10. End-of-term Project", fixed: "These are the instructions for your end-of-term project.", items: [ "For end of term project, you need to choose at least 2 of these", "It needs to include relevant images and your own text about the topic", "Then you need to use images and written work to create a presentation", "Your presentation offer your key points and you have around 5 minutes to talk", "After this time, other students are able to ask questions and you need to answer them" ], translation: "Đây là hướng dẫn cho dự án cuối kỳ của bạn..." },
+            { id: 11, title: "11. Music show at the park", fixed: "Here are some directions and activities when visiting my place.", items: [ "The local authority planned, sponsored, and paid for everything.", "Because of this, it was free and five thousand people attended it.", "Many of them arrived early and visited nearby shops while they were waiting for it to begin.", "The staff there had a busy day, but they were able to close early and watch the famous singer perform.", "He performed for two hours and everyone had great fun" ], translation: "Đây là một số chỉ dẫn và hoạt động khi đến thăm nơi của tôi..." },
+            { id: 12, title: "12. College welcoming day", fixed: "All students will attend the welcoming day on Monday, the 19th.", items: [ "The day will begin at 10 a.m in the morning with a short presentation.", "At the end of this talk, you will meet the heads of departments and teachers.", "These staff members will give you a guided tour in the buildings and our sport facilities in small groups", "During this visit, you will need to stay with these students until lunch break.", "This meal will be provided on the second floor of the engineering building" ], translation: "Tất cả sinh viên sẽ tham dự ngày chào mừng vào thứ Hai..." },
+            { id: 13, title: "13. African American Women in Space", fixed: "This is the story of Mae, the first African-American woman to travel into space.", items: [ "With the support from her parents, she went to university to study science", "Her degree enabled her to get a place on the training course in US.A", "This is about space, and it helps Mae to become a member of a research team", "As part of this group, she traveled to space and did a lot of experiments", "Some of those were about growing plants and some animals in a spaceship" ], translation: "Đây là câu chuyện về Mae, người phụ nữ Mỹ gốc Phi đầu tiên..." },
+            { id: 14, title: "14. Travel", fixed: "In the early 1800s, traveling is quite difficult", items: [ "At that time, only the very wealthy could afford to travel", "Thanks to the invention of cars and trains, it became easier for people to travel", "Not only the above 2 means of transport, people later had the opportunity to travel by aeroplanes", "Because flying is very fast, people can travel by this means to different locations for business or travel", "Thanks to the great development of means of transport, today people can travel to other parts of the world." ], translation: "Vào đầu những năm 1800, việc đi lại khá khó khăn..." },
+            
+            // --- TOPIC 15 TỪ ẢNH 'mới 2.png' ---
+            {
+                id: 15,
+                title: "15. Group Presentation Process", 
+                fixed: "Here are the steps we take for our group presentation.",
+                items: [
+                    "First, we prepare materials for our group presentation",
+                    "Then, we present our topic for five minutes",
+                    "During the presentation, we use pictures and our own words to explain the ideas",
+                    "After the presentation, the other students ask questions",
+                    "Finally, group members take turns answering the questions."
+                ],
+                translation: "Đây là các bước chúng tôi thực hiện cho bài thuyết trình nhóm. Đầu tiên, chúng tôi chuẩn bị tài liệu. Sau đó, chúng tôi trình bày chủ đề trong 5 phút. Trong khi thuyết trình, chúng tôi dùng tranh ảnh và lời nói để giải thích ý tưởng. Sau bài thuyết trình, các sinh viên khác đặt câu hỏi. Cuối cùng, các thành viên nhóm lần lượt trả lời câu hỏi."
+            },
+            
+            // --- TOPIC 16 TỪ ẢNH 'mới1.png' ---
+            {
+                id: 16,
+                title: "16. End of Term Project (Requirements)", 
+                fixed: "The end of term project will focus on at least two of these chapters.",
+                items: [
+                    "It will have relevant pictures, and your own writing on the topic.",
+                    "You will then need to use these pictures and written work to create a presentation for the class.",
+                    "This talk will point out the key points, and should last about 5 minutes in total.",
+                    "After this time, other students will have questions for you and you have to answer them."
+                ],
+                translation: "Vui lòng lắng nghe các yêu cầu cho dự án cuối kỳ. Dự án sẽ tập trung vào ít nhất hai trong số các chương này. Nó sẽ có các hình ảnh liên quan và bài viết của chính bạn về chủ đề. Sau đó bạn cần dùng hình ảnh và bài viết để tạo bài thuyết trình cho lớp. Bài nói này sẽ chỉ ra các điểm chính và kéo dài khoảng 5 phút. Sau thời gian này, các sinh viên khác sẽ có câu hỏi cho bạn và bạn phải trả lời chúng."
+            }
+        ];
+
+
+        // --- READING PART 5 ---
+        const dataPart5 = [
+            { id: 1, title: "MOUNTAIN SUMMITS", tip: "changing => sense => publishing => wrong => relevant => focus => relationship", correctOrder: [ "Our changing definition of mountains", "A sense of achievement", "Publishing one's achievements", "The wrong priorities", "A disturbing relevant", "A focus on sustainability", "A more intimate relationship" ] },
+            { id: 2, title: "THE ARRIVAL OF 4-DAYS WORK WEEK", tip: "life => benefits => financial => challenges => old => people => solutions", correctOrder: [ "A way of life now out date", "Benefits for Employees", "Undesirable financial consequences", "Unforeseen Challenges for Employees", "Difficulty Changing Old Habits", "An unfair plan for some people", "Alternative solutions worth considering" ] },
+            { id: 3, title: "DIGITAL TRANSFORMATION", tip: "redefining => productivity => digital skills => over-reliance => risks => building => development", correctOrder: [ "Redefining business models with technology", "Enhancing productivity through automation", "Promoting digital training skills", "Over-reliance on automated systems", "Concerns about cybersecurity risks", "Building inclusive digital ecosystems", "Focusing on ethical technology development" ] },
+            { id: 4, title: "WELLNESS TRENDS", tip: "redefining => mental health => fitness => overemphasis => labels => balance => beneficial", correctOrder: [ "Redefining holistic health approaches", "Promoting mental health awareness", "Encouraging community fitness programs", "Overemphasis on trendy diets", "Labels can change perspective on people", "Attempting to create a gender balance", "Uniformity is not always beneficial" ] },
+            { id: 5, title: "WOMEN MATHEMATICIANS", tip: "obscure => pioneer => man => long => people => balance => uniformity", correctOrder: [ "Gender obscure achievement", "Acknowledging the achievement of a pioneer", "Man unfairly credited", "A long career showing exceptional ability", "Labels can change perspective on people", "Attempting to create a gender balance", "Uniformity is not always beneficial" ] },
+            
+            // --- TOPIC 6 MỚI TỪ ẢNH 'reading part 5.png' ---
+            { 
+                id: 6, 
+                title: "TECH IMPACT", 
+                tip: "enhancing => overreliance => redefining => concerns => promoting => focusing => building", 
+                correctOrder: [ 
+                    "Enhancing productivity through smart automation", 
+                    "Overreliance on digital interfaces", 
+                    "Redefining human-technology interaction", 
+                    "Concerns about technology access disparities", 
+                    "Promoting tech-driven education programs", 
+                    "Focusing on sustainable digital solutions", 
+                    "Building innovative tech communities" 
+                ] 
+            }
+        ];
+
+        // --- NEW DATA: IDIOMS ---
+        const dataIdioms = [
+            { phrase: "A piece of cake", mean: "Dễ như ăn kẹo", example: "The exam was a piece of cake." },
+            { phrase: "Cost an arm and a leg", mean: "Rất đắt đỏ", example: "This laptop costs an arm and a leg." },
+            { phrase: "Break a leg", mean: "Chúc may mắn", example: "Break a leg on your performance tonight!" },
+            { phrase: "Under the weather", mean: "Cảm thấy không khỏe, bị ốm", example: "I'm feeling a bit under the weather today." },
+            { phrase: "Spill the beans", mean: "Tiết lộ bí mật", example: "Don't spill the beans about the surprise party." },
+            { phrase: "Once in a blue moon", mean: "Rất hiếm khi", example: "I go to the cinema once in a blue moon." },
+            { phrase: "See eye to eye", mean: "Đồng quan điểm", example: "My boss and I don't always see eye to eye." },
+            { phrase: "Hit the books", mean: "Học bài chăm chỉ", example: "I have an exam tomorrow, so I need to hit the books." },
+            { phrase: "A blessing in disguise", mean: "Trong cái rủi có cái may", example: "Losing my job was a blessing in disguise because I found a better one." },
+            { phrase: "Call it a day", mean: "Nghỉ tay, kết thúc công việc", example: "I'm tired. Let's call it a day." },
+            { phrase: "Better late than never", mean: "Muộn còn hơn không", example: "He arrived an hour late, but better late than never." },
+            { phrase: "Bite the bullet", mean: "Cắn răng chịu đựng/Làm điều khó khăn", example: "I hate dentists, but I'll have to bite the bullet." },
+            { phrase: "The best of both worlds", mean: "Vẹn cả đôi đường", example: "She works part-time, so she has the best of both worlds." },
+            { phrase: "Feeling blue", mean: "Cảm thấy buồn", example: "She's been feeling blue since she failed the test." },
+            { phrase: "Over the moon", mean: "Rất vui sướng", example: "I was over the moon when I got the results." },
+            { phrase: "Let the cat out of the bag", mean: "Vô tình tiết lộ bí mật", example: "Who let the cat out of the bag about the trip?" },
+            { phrase: "Hit the sack / Hit the hay", mean: "Đi ngủ", example: "It's late, I'm going to hit the sack." },
+            { phrase: "No pain, no gain", mean: "Có công mài sắt có ngày nên kim", example: "Exercise is hard, but no pain, no gain." },
+            { phrase: "On cloud nine", mean: "Hạnh phúc tột độ", example: "He was on cloud nine after winning the lottery." },
+            { phrase: "Rain cats and dogs", mean: "Mưa như trút nước", example: "It's raining cats and dogs outside." }
+        ];
+
+        // --- LISTENING PART 2 (FULL 48 ĐOẠN - 12 CHỦ ĐỀ - LONG VERSION) ---
+        const dataListening = [
+            { 
+                id: 1, 
+                title: "PROTECTING THE ENVIRONMENT", 
+                options: [ { id: "A", text: "Using less electricity", mean: "Sử dụng ít điện hơn" }, { id: "B", text: "Not driving to work", mean: "Không lái xe đi làm" }, { id: "C", text: "Shopping online", mean: "Mua sắm trực tuyến" }, { id: "D", text: "Using less water", mean: "Sử dụng ít nước hơn" } ], 
+                items: [ 
+                    { id: 1, transcript: "I try to help the environment by using less electricity at home. I always turn off the lights when I don't need them and make sure my appliances are energy-efficient. I've also started unplugging things like chargers when I'm not using them because they still use power. This helps lower my electricity bill and reduces my impact on the planet. I believe that if everyone made these small changes, we could save a lot of energy and help fight climate change.", correct: "A" }, 
+                    { id: 2, transcript: "To protect the environment, I don't drive to work anymore. Instead, I walk when the weather is nice, or I take the bus. It's not only better for the planet, but it also keeps me more active, and I enjoy the fresh air. By not driving, I use less fuel and help reduce air pollution in the city. I think if more people chose to walk or use public transport, we could reduce traffic and make our towns and cities cleaner and healthier for everyone.", correct: "B" }, 
+                    { id: 3, transcript: "I've decided to shop online as a way to protect the environment. By ordering things online, I don't need to drive to the store, which means I'm using less fuel and producing less pollution. Many companies now offer eco-friendly packaging, and I try to buy from them whenever possible. Also, online deliveries often group items together, which reduces the number of trips made. It's convenient for me, and I feel like I'm doing something good for the environment at the same time.", correct: "C" }, 
+                    { id: 4, transcript: "I try to save water every day as a way to protect the environment. For example, I take shorter showers, turn off the tap while brushing my teeth, and use less water when washing dishes. I've also installed special taps and showerheads that use less water but still work well. Water is a limited resource, and many places don't have enough clean water. That's why I think it's important for all of us to be careful and not waste it. Even small actions can make a big difference.", correct: "D" } 
+                ] 
+            },
+            { 
+                id: 2, 
+                title: "ONLINE SHOPPING", 
+                options: [{id:"A",text:"It saves time", mean: "Nó tiết kiệm thời gian"},{id:"B",text:"It is cheaper", mean: "Nó rẻ hơn"},{id:"C",text:"The products are delivered", mean: "Sản phẩm được giao tận nơi"},{id:"D",text:"There are more choices", mean: "Có nhiều sự lựa chọn hơn"}], 
+                items: [
+                    {id:1,transcript:"I've always been a bit short on time, especially with my busy work schedule. That's why I prefer shopping online. It really helps me save so much time. Instead of spending hours in stores, I can quickly browse through different websites, compare prices, and make my purchase in just a few clicks. It's so convenient, especially when I need something urgently. I can even shop during my lunch break or late at night. It fits perfectly with my lifestyle, and I don't have to worry about rushing to a store before it closes.",correct:"A"},
+                    {id:2,transcript:"For me, one of the main reasons I shop online is because it's usually more affordable. I've noticed that many online stores offer discounts and I can often find cheaper prices than I would in physical shops. Plus, I can compare products easily, making sure I'm getting the best deal. I also don't have to spend money on transportation or parking, which adds up in the long run. It's a great way to stick to my budget while still getting everything I need.",correct:"B"},
+                    {id:3,transcript:"The biggest advantage of shopping online for me is the fact that I don't have to leave my house. I love how products get delivered straight to my doorstep, especially when I order something heavy or large. It saves me the hassle of carrying things back from the store. I also like how fast the delivery can be, sometimes arriving the very next day. It makes life so much easier, especially when I have a busy week ahead and can't make it to the shops.",correct:"C"},
+                    {id:4,transcript:"What I love about shopping online is the incredible variety of products available. When I go to a store, I'm limited to what's in stock, but online, there's so much more choice. I can find different brands, styles, and even products that aren't available locally. It's great for finding unique items or hard-to-find sizes. I can spend time browsing until I find exactly what I'm looking for without feeling rushed. It gives me the freedom to explore all my options.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 3, 
+                title: "STUDYING HABITS", 
+                options: [{id:"A",text:"Late at night", mean: "Khung giờ đêm muộn"},{id:"B",text:"Various places", mean: "Nhiều địa điểm khác nhau"},{id:"C",text:"With music", mean: "Vừa học vừa nghe nhạc"},{id:"D",text:"In a quiet place", mean: "Ở một nơi yên tĩnh"}], 
+                items: [
+                    {id:1,transcript:"Surprisingly, I find that late-night hours work best for my studying. The quietness of the night really helps me concentrate. While others are winding down, I feel more alert and inspired. Those late hours give me a chance to dive deep into my work without interruptions, turning them into my most productive study sessions.",correct:"A"},
+                    {id:2,transcript:"I've realized that my study environment has a significant impact on my productivity. Changing my study space has really helped me focus better. The library offers a quiet atmosphere that's perfect for serious work, but sometimes, a lively cafe is just what I need for a refreshing change. Being outdoors in a park with fresh air can also clear my mind. Each place keeps my study sessions interesting and engaging.",correct:"B"},
+                    {id:3,transcript:"I've discovered that the right soundtrack can enhance my study sessions significantly. When I study, having some background music makes a noticeable difference. I tend to choose soft melodies or instrumental tracks that won't distract me. The right music helps maintain my energy and makes long study sessions feel less tedious. It creates an atmosphere that encourages me to keep pushing through.",correct:"C"},
+                    {id:4,transcript:"Finding the right space to study is crucial for effective learning. I usually end up in a quiet room at home or a secluded corner in the library. It's incredible how much I can absorb without distractions. This kind of environment really allows me to think deeply and connect with the material I'm learning.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 4, 
+                title: "LISTENING TO MUSIC", 
+                options: [{id:"A",text:"To relax", mean: "Để thư giãn"},{id:"B",text:"While studying", mean: "Trong khi học"},{id:"C",text:"While singing", mean: "Trong khi hát"},{id:"D",text:"After waking up", mean: "Sau khi thức dậy"}], 
+                items: [
+                    {id:1,transcript:"I've always found music to be the best way to unwind after a long day. I like to listen to music when I want to relax. It helps me switch off from everything, whether I'm lying on the couch or taking a walk in the park. I usually go for something soft and calming like acoustic or classical music. It's my way of de-stressing and escaping from all the noise of everyday life. I just closed my eyes and the music took me away.",correct:"A"},
+                    {id:2,transcript:"For me music is a must when I'm studying. I know some people find it distracting but I actually concentrate better when there's music playing in the background. I usually pick something without lyrics like instrumental or electronic music. So it doesn't interrupt my thinking. It keeps me focused and helps me stay motivated when I'm working on long assignments or preparing for exams. It's become part of my study routine now.",correct:"B"},
+                    {id:3,transcript:"I've always loved singing. So, I listen to music whenever I feel like practicing my vocals. It's not just about listening for fun. I like to sing along. And try to improve my voice. Whether it's pop songs or karaoke tracks. I find it really enjoyable. And the great way to express myself. Sometimes, I even record myself to see how I'm doing. It's a fun hobby. And I love exploring new songs and melodies.",correct:"C"},
+                    {id:4,transcript:"I like to start my day with music as soon as I wake up. It helps me feel energized and ready for whatever lies ahead. As soon as I get out of bed, I turn on my favorite playlist, which is usually full of upbeat, happy songs. It's like my morning ritual setting, the mood for the day and getting me in a good headspace. Music really helps kick-start my mornings on a positive note.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 5, 
+                title: "ENVIRONMENT PROBLEM", 
+                options: [{id:"A",text:"Give away used items", mean: "Quyên góp đồ cũ"},{id:"B",text:"Buy environmentally friendly products", mean: "Mua sản phẩm thân thiện môi trường"},{id:"C",text:"Reuse containers", mean: "Tái sử dụng hộp đựng"},{id:"D",text:"No commercial cleaning products", mean: "Không dùng chất tẩy rửa thương mại"}], 
+                items: [
+                    {id:1,transcript:"You know, it amazes me how much stuff we throw away without a second thought. I've decided to stop contributing to the landfill problem. Now, instead of dumping my old clothes, books, or furniture, I make an effort to donate them to local charities or give them to friends who might need them. It feels good to give items a second life.",correct:"A"},
+                    {id:2,transcript:"I think one of the most powerful ways we can protect the environment is by voting with our wallets. When I go shopping, I always look for the eco-label. I prioritize products that are sustainably sourced, made from recycled materials, or have minimal packaging. I refuse to buy things that are clearly damaging to the planet.",correct:"B"},
+                    {id:3,transcript:"I used to use so much plastic wrap and sandwich bags, but I realized how wasteful it was. Now, I've started washing and reusing glass jars and plastic containers for storing my leftovers. It keeps the food just as fresh, but I'm not throwing away single-use plastics every day. It's a simple habit change that reduces waste in my kitchen significantly.",correct:"C"},
+                    {id:4,transcript:"I was shocked when I read about the toxins in standard household cleaners. I stopped buying commercial cleaning sprays altogether because they are bad for the water supply. Instead, I make my own effective cleaning solutions using simple ingredients like vinegar, baking soda, and lemon juice. They work just as well and are completely safe for the environment.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 6, 
+                title: "OUTDOOR ACTIVITIES", 
+                options: [{id:"A",text:"Mountain biking", mean: "Đạp xe địa hình"},{id:"B",text:"Going for a run", mean: "Chạy bộ"},{id:"C",text:"Walking", mean: "Đi bộ"},{id:"D",text:"Horse riding", mean: "Cưỡi ngựa"}], 
+                items: [
+                    {id:1,transcript:"I've always been drawn to outdoor activities, especially those that get my adrenaline pumping. While some of my friends prefer hiking, I find nothing more exciting than mountain biking. Taking my bike out on a rugged, muddy trail and navigating the steep descents gives me a rush that no other sport can match.",correct:"A"},
+                    {id:2,transcript:"When it comes to staying active, I've tried lots of different sports, from tennis to swimming. But honestly, I get the most satisfaction out of a simple jog. I just put on my sneakers, step out the door, and run. It clears my head, keeps my heart healthy, and I can do it anywhere without needing expensive equipment.",correct:"B"},
+                    {id:3,transcript:"I'm not really into intense, sweaty exercise. I prefer something more low-key and calming. For me, walking is the perfect activity. I enjoy long, leisurely strolls in the countryside where I can observe the birds, enjoy the scenery, and just breathe in the fresh air without feeling exhausted.",correct:"C"},
+                    {id:4,transcript:"I have loved animals all my life, so my favorite outdoor hobby naturally involves them. Riding a horse through the forest is a magical experience for me. There's a special connection you build with the animal, and seeing the world from horseback gives you a completely different perspective on nature.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 7, 
+                title: "THE PLACE TO RUN", 
+                options: [{id:"A",text:"In the street", mean: "Trên đường phố"},{id:"B",text:"At the seaside", mean: "Bên bờ biển"},{id:"C",text:"On the running track", mean: "Trên đường chạy/sân vận động"},{id:"D",text:"In the fitness centre", mean: "Trong phòng tập gym"}], 
+                items: [
+                    {id:1,transcript:"I get bored easily if I stay in one place, so I like running through the city streets. There's always something new to look at—the busy shops, the traffic, the people going about their day. Navigating around obstacles and stopping at traffic lights keeps me alert, and the changing urban scenery makes the time pass much faster.",correct:"A"},
+                    {id:2,transcript:"For me, there is nothing better than the coast. The clean, salty air by the sea makes me feel invigorated and helps clear my head. I love running along the beach in the early morning when it's quiet. The sound of the waves is rhythmic and relaxing, and running on the sand helps make my legs much stronger.",correct:"B"},
+                    {id:3,transcript:"I take my training quite seriously, so I prefer to use the local stadium. The rubber running track is flat and marked out perfectly, so I can measure my speed and distance accurately. It's also much better for my joints than running on concrete pavement, which helps me avoid injuries.",correct:"C"},
+                    {id:4,transcript:"I hate running in bad weather, so I prefer running indoors on a treadmill at the gym. Inside, I don't have to worry about it being too hot, cold, or rainy. Plus, the gym has air conditioning, and I can watch TV or listen to music comfortably while I get my miles in.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 8, 
+                title: "DO EXERCISE", 
+                options: [{id:"A",text:"Improve work performance", mean: "Cải thiện hiệu suất làm việc"},{id:"B",text:"Find exercise tiring", mean: "Thấy tập thể dục mệt mỏi"},{id:"C",text:"Fun with others", mean: "Vui vẻ khi tập cùng người khác"},{id:"D",text:"Hate exercising", mean: "Ghét tập thể dục"}], 
+                items: [
+                    {id:1,transcript:"Exercise has become essential in my life, specifically because of my demanding job. I've noticed a huge difference; after I work out, I feel much more focused and energetic at the office. My concentration improves, and I find I can get through my tasks much faster than on days when I skip the gym.",correct:"A"},
+                    {id:2,transcript:"Honestly? Exercise just completely wears me out. I know it's supposed to give you energy, but for me, the idea of getting all sweaty and sore doesn't excite me at all. Every time I try to go for a run or lift weights, I end up feeling exhausted and needing a nap afterwards.",correct:"B"},
+                    {id:3,transcript:"I used to find exercise boring, but then I joined a local sports team. Now, exercising is a blast because I'm with the right people! We have a great laugh together while we play, and the social aspect makes me forget that I'm actually working out. It's the highlight of my week.",correct:"C"},
+                    {id:4,transcript:"Exercise? Ugh, I absolutely can't stand it. I know everyone says it's good for you and I should do it, but I find it completely miserable. The sweat, the muscle pain, the boredom of repetitive movements... it's just not for me. I try to avoid it whenever I possibly can.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 9, 
+                title: "USE THE INTERNET", 
+                options: [{id:"A",text:"Watch films", mean: "Xem phim"},{id:"B",text:"Communicate with friends", mean: "Giao tiếp với bạn bè"},{id:"C",text:"School assignments", mean: "Bài tập trường học"},{id:"D",text:"Transport information", mean: "Thông tin đi lại/giao thông"}], 
+                items: [
+                    {id:1,transcript:"I have a subscription to a couple of streaming services, and honestly, I spend most of my free bandwidth watching the latest movies and TV series. The Internet makes it so easy to find a huge variety of films from all over the world, and I love being able to binge-watch a whole season of a show in one weekend.",correct:"A"},
+                    {id:2,transcript:"I have friends scattered all over the world, so the main reason I use the Internet is to stay in touch with them. Apps like WhatsApp and Facebook are vital for me. It's amazing that I can video call my best friend in Australia or share photos with my cousin in Canada instantly without paying a fortune.",correct:"B"},
+                    {id:3,transcript:"As a student, the Internet is my most essential tool. I rely on it completely for completing my essays and projects. I use it to browse academic databases, read online journals, and submit my homework through the university portal. I really don't know how I would pass my course without it.",correct:"C"},{id:4,transcript:"I travel a lot for work, so I am constantly using the Internet to plan my journeys. Whenever I need to get somewhere, I check train schedules, look up bus routes, or book flight tickets online. It makes the logistics of travel so much smoother when you can see real-time updates on delays or cancellations.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 10, 
+                title: "ART", 
+                options: [{id:"A",text:"Social activity", mean: "Hoạt động xã hội"},{id:"B",text:"With children", mean: "Với trẻ em"},{id:"C",text:"Part of job", mean: "Một phần của công việc"},{id:"D",text:"Alone", mean: "Một mình"}], 
+                items: [
+                    {id:1,transcript:"I joined a local painting class last year, not really because I'm good at art, but to meet people. I love when we all come together to create something. It's not just about the painting; it's about chatting, sharing ideas, and connecting with others. Art has become a really fun social experience for me.",correct:"A"},
+                    {id:2,transcript:"I'm a primary school teacher, so I do a lot of art projects with my students. Kids are so fearless and uninhibited when they create; they just jump in with paint and glue without worrying about making mistakes. Watching them express themselves is a joy, and it reminds me that creativity should be fun.",correct:"B"},
+                    {id:3,transcript:"I work as a graphic designer, so creating visual content is literally how I earn my living. For me, art comes with structure—deadlines, client briefs, and specific goals. It's very different from doing art as a hobby because I have to balance my own creative ideas with what the customer actually wants.",correct:"C"},
+                    {id:4,transcript:"Painting is my escape from the world. I lock myself in my studio, put on some music, and work in complete silence. It is a deeply personal and solitary pursuit for me. I don't show my work to many people; it's just my way of processing my thoughts and feelings without any outside distractions.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 11, 
+                title: "TRAVEL TO WORK", 
+                options: [{id:"A",text:"Walk with friends", mean: "Đi bộ cùng bạn"},{id:"B",text:"Go by bus", mean: "Đi bằng xe buýt"},{id:"C",text:"Walk alone", mean: "Đi bộ một mình"},{id:"D",text:"Drive car", mean: "Lái xe hơi"}], 
+                items: [
+                    {id:1,transcript:"I'm really lucky that my colleague lives just a few streets away. Every morning, we meet up and walk to the office together. It's my favorite time of day because we get to catch up, complain about the boss, or laugh about silly things. The walk goes by so quickly when you have good company.",correct:"A"},
+                    {id:2,transcript:"There's something oddly comforting about my morning routine. I walk to the stop, hop on the number 42 bus, find a seat by the window, and just watch the world go by. It gives me time to read a book or listen to a podcast before the chaos of the workday begins. It's cheap, reliable, and relaxing.",correct:"B"},
+                    {id:3,transcript:"I cherish my morning walk to work because it's the only time I get to be truly by myself. Mornings are quiet, the air is fresh, and I love walking alone through the park. It gives me space to think, plan my day, and enjoy the solitude before I have to deal with people for eight hours.",correct:"C"},
+                    {id:4,transcript:"I value my independence and comfort too much to take public transport. Every morning, it's just me, my car, and the open road. I can control the temperature, listen to my own music as loud as I want, and I don't have to wait for anyone. Driving is definitely the most convenient way for me to get to work.",correct:"D"}
+                ] 
+            },
+            { 
+                id: 12, 
+                title: "A PLACE FOR STUDYING", 
+                options: [{id:"A",text:"On public transport", mean: "Trên phương tiện công cộng"},{id:"B",text:"At home", mean: "Tại nhà"},{id:"C",text:"In the coffee shop", mean: "Trong quán cà phê"},{id:"D",text:"In the park", mean: "Trong công viên"}], 
+                items: [
+                    {id:1,transcript:"My commute is quite long; the distance from my house to school is about 20 km. It usually takes me an hour on the train. So, instead of wasting that time, I use it to review my notes and do homework. The train ride is actually a very productive time for me to get my reading done.",correct:"A"},
+                    {id:2,transcript:"I really struggle to focus in crowded or noisy places. I need my own space. That's why I usually study at home, sitting at the desk in my bedroom. It's comfortable, all my books are within reach, and I can control the environment. It is definitely the most productive place for me.",correct:"B"},
+                    {id:3,transcript:"I find studying in total silence at home a bit depressing; I get sleepy too easily. I prefer a bit of background buzz. There's a nice coffee shop near my house with big tables and free WiFi. I often go there, order a cappuccino, and study for hours. The smell of coffee helps keep me awake!",correct:"C"},{id:4,transcript:"I hate being stuck indoors all day. When the weather is nice, I take my textbooks and go to the local park. I prefer sitting under a big tree on the grass to study. The fresh air and natural light make me feel much more relaxed, and I find I can memorize things better when I'm outside.",correct:"D"}
+                ] 
+            }
+        ];
+
+        // ================= NEW DATA: GV (GRAMMAR & VOCABULARY - SPLIT) =================
+        const dataGV1 = [
+            { 
+                id: "gv1_q26", type: "match", title: "GV 1 - Q26: Synonyms", 
+                pairs: [
+                    { q: "demonstrate", a: "show", mean: "chỉ ra/cho thấy", options: ["organize", "show", "make", "command"] },
+                    { q: "comprehend", a: "understand", mean: "hiểu", options: ["understand", "listen", "read", "pain"] },
+                    { q: "encourage", a: "inspire", mean: "truyền cảm hứng", options: ["inspire", "enlarge", "film", "pain"] },
+                    { q: "direct", a: "command", mean: "ra lệnh/chỉ đạo", options: ["show", "command", "organize", "make"] },
+                    { q: "create", a: "make", mean: "tạo ra/làm", options: ["make", "film", "enlarge", "read"] }
+                ]
+            },
+            {
+                id: "gv1_q27", type: "match", title: "GV 1 - Q27: Definitions",
+                pairs: [
+                    { q: "To gain knowledge is to", a: "learn", mean: "học", options: ["sweep", "learn", "review", "keep"] },
+                    { q: "To assess a student's performance is to", a: "evaluate", mean: "đánh giá", options: ["teach", "evaluate", "write", "stop"] },
+                    { q: "To look over something carefully is to", a: "review", mean: "xem lại", options: ["evaluate", "review", "advertise", "keep"] },
+                    { q: "To put things in their correct place is to", a: "tidy", mean: "dọn dẹp", options: ["tidy", "sweep", "write", "stop"] },
+                    { q: "To exchange information by speaking is to", a: "communicate", mean: "giao tiếp", options: ["communicate", "teach", "advertise", "keep"] }
+                ]
+            },
+            {
+                id: "gv1_q28", type: "match", title: "GV 1 - Q28: Sentence Completion",
+                pairs: [
+                    { q: "In the fall, we are implementing a new English-language ___ at our school.", a: "curriculum", mean: "chương trình học", options: ["skill", "curriculum", "exam", "tiles"] },
+                    { q: "Every Friday, the students take a short ___ to see if they understood.", a: "quiz", mean: "bài kiểm tra ngắn", options: ["quiz", "progress", "house", "reflection"] },
+                    { q: "It is important for kids to play in team sports so that they learn ___", a: "cooperation", mean: "sự hợp tác", options: ["cooperation", "puzzles", "textbook", "tiles"] },
+                    { q: "The new technology course does not have a ___. All material is online.", a: "textbook", mean: "sách giáo khoa", options: ["progress", "textbook", "exam", "house"] },
+                    { q: "Kindergarten students learn shapes by playing with ___", a: "puzzles", mean: "câu đố/ghép hình", options: ["puzzles", "skill", "reflection", "quiz"] }
+                ]
+            },
+            {
+                id: "gv1_q29", type: "match", title: "GV 1 - Q29: Synonyms (Success...)",
+                pairs: [
+                    { q: "independent", a: "self-sufficient", mean: "tự cung tự cấp/độc lập", options: ["free", "self-sufficient", "apart", "money"] },
+                    { q: "rewarding", a: "satisfying", mean: "thỏa mãn", options: ["exclusive", "satisfying", "failure", "injury"] },
+                    { q: "occupied", a: "busy", mean: "bận rộn", options: ["self-sufficient", "busy", "success", "technique"] },
+                    { q: "strategy", a: "technique", mean: "kỹ thuật/chiến lược", options: ["apart", "technique", "failure", "money"] },
+                    { q: "achievement", a: "success", mean: "thành công", options: ["satisfying", "success", "exclusive", "free"] }
+                ]
+            },
+            {
+                id: "gv1_q30", type: "match", title: "GV 1 - Q30: Collocations",
+                pairs: [
+                    { q: "professional", a: "attire", mean: "trang phục chuyên nghiệp", options: ["attire", "room", "song", "outfit"] },
+                    { q: "school", a: "bus", mean: "xe buýt trường học", options: ["university", "bus", "run", "staircase"] },
+                    { q: "Master's", a: "degree", mean: "bằng thạc sĩ", options: ["degree", "outfit", "song", "quiz"] },
+                    { q: "staff", a: "room", mean: "phòng nhân viên", options: ["room", "exam", "run", "university"] },
+                    { q: "final", a: "exam", mean: "bài thi cuối kỳ", options: ["exam", "quiz", "staircase", "attire"] }
+                ]
+            }
+        ];
+
+        const dataGV2 = [
+            {
+                id: "gv2_q26", type: "match", title: "GV 2 - Q26: Synonyms",
+                pairs: [
+                    { q: "progress", a: "grow", mean: "phát triển/lớn lên", options: ["grow", "read", "hear", "direct"] },
+                    { q: "skim", a: "read", mean: "đọc lướt", options: ["read", "grow", "hear", "clarify"] },
+                    { q: "listen", a: "hear", mean: "nghe", options: ["hear", "read", "grow", "direct"] },
+                    { q: "guide", a: "direct", mean: "hướng dẫn/chỉ đạo", options: ["direct", "clarify", "hear", "read"] },
+                    { q: "explain", a: "clarify", mean: "làm rõ/giải thích", options: ["clarify", "direct", "grow", "hear"] }
+                ]
+            },
+            {
+                id: "gv2_q27", type: "match", title: "GV 2 - Q27: Definitions",
+                pairs: [
+                    { q: "To pay attention is to", a: "focus", mean: "tập trung", options: ["focus", "greet", "organize", "update"] },
+                    { q: "To say hello to someone is to", a: "greet", mean: "chào hỏi", options: ["greet", "focus", "observe", "facilitate"] },
+                    { q: "To make things tidy is to", a: "organize", mean: "sắp xếp/tổ chức", options: ["organize", "update", "greet", "focus"] },
+                    { q: "To make something more modern is to", a: "update", mean: "cập nhật", options: ["update", "organize", "facilitate", "observe"] },
+                    { q: "To watch a colleague delivering a lesson is to", a: "observe", mean: "quan sát", options: ["facilitate", "observe", "update", "organize"] }
+                ]
+            },
+            {
+                id: "gv2_q28", type: "match", title: "GV 2 - Q28: Sentence Completion",
+                pairs: [
+                    { q: "If students ___ on their final exam, they receive zero.", a: "cheat", mean: "gian lận", options: ["fail", "cheat", "tools", "boost"] },
+                    { q: "New primary school teachers often struggle with managing ___", a: "discipline", mean: "kỷ luật", options: ["tools", "discipline", "portfolio", "present"] },
+                    { q: "In order to ___ my grade average, I have hired a tutor.", a: "boost", mean: "tăng cường/đẩy mạnh", options: ["cheat", "boost", "fail", "present"] },
+                    { q: "When we mark students as ___ for the lesson, secretary calls parents.", a: "absent", mean: "vắng mặt", options: ["present", "absent", "fail", "tools"] }, 
+                    { q: "Some teachers collect assignments and place them in a ___", a: "portfolio", mean: "hồ sơ năng lực", options: ["portfolio", "tools", "discipline", "cheat"] }
+                ]
+            },
+            {
+                id: "gv2_q29", type: "match", title: "GV 2 - Q29: Synonyms (Scholarship...)",
+                pairs: [
+                    { q: "scholarship", a: "grant", mean: "học bổng/trợ cấp", options: ["drop-out", "grant", "task", "topic"] },
+                    { q: "subject", a: "topic", mean: "chủ đề", options: ["material", "topic", "salary", "task"] },
+                    { q: "assignment", a: "task", mean: "nhiệm vụ/bài tập", options: ["salary", "task", "drop-out", "compulsory"] },
+                    { q: "mandatory", a: "compulsory", mean: "bắt buộc", options: ["compulsory", "task", "material", "grant"] },
+                    { q: "enrollment", a: "registration", mean: "đăng ký/ghi danh", options: ["task", "registration", "drop-out", "salary"] }
+                ]
+            },
+            {
+                id: "gv2_q30", type: "match", title: "GV 2 - Q30: Collocations",
+                pairs: [
+                    { q: "quick", a: "quiz", mean: "bài kiểm tra nhanh", options: ["quiz", "year", "ability", "role"] },
+                    { q: "gap", a: "year", mean: "năm nghỉ phép", options: ["year", "quiz", "role", "room"] },
+                    { q: "proven", a: "ability", mean: "năng lực đã được chứng minh", options: ["ability", "requirements", "learning", "room"] },
+                    { q: "entrance", a: "requirements", mean: "yêu cầu đầu vào", options: ["role", "requirements", "year", "quiz"] },
+                    { q: "distance", a: "learning", mean: "đào tạo từ xa", options: ["room", "learning", "ability", "role"] }
+                ]
+            }
+        ];
+
+        const dataGV3 = [
+            {
+                id: "gv3_q26", type: "match", title: "GV 3 - Q26: Synonyms",
+                pairs: [
+                    { q: "big", a: "large", mean: "lớn", options: ["large", "disagree", "realise", "finish"] },
+                    { q: "oppose", a: "disagree", mean: "phản đối/không đồng ý", options: ["disagree", "large", "join", "tell"] },
+                    { q: "unite", a: "join", mean: "tham gia/kết nối", options: ["realise", "join", "finish", "tell"] },
+                    { q: "complete", a: "finish", mean: "hoàn thành", options: ["finish", "large", "disagree", "realise"] },
+                    { q: "say", a: "tell", mean: "nói/kể", options: ["tell", "join", "finish", "large"] }
+                ]
+            },
+            {
+                id: "gv3_q27", type: "match", title: "GV 3 - Q27: Sentence Completion",
+                pairs: [
+                    { q: "To say no is to...", a: "refuse", mean: "từ chối", options: ["refuse", "follow", "share", "observe"] },
+                    { q: "To look at something is to...", a: "observe", mean: "quan sát", options: ["follow", "observe", "share", "cover"] },
+                    { q: "To wrap something is to...", a: "cover", mean: "bao phủ", options: ["cover", "follow", "refuse", "share"] },
+                    { q: "To give orders is to...", a: "instruct", mean: "hướng dẫn/chỉ thị", options: ["share", "instruct", "estimate", "cover"] },
+                    { q: "To guess something is to...", a: "estimate", mean: "ước lượng", options: ["observe", "estimate", "refuse", "instruct"] }
+                ]
+            },
+            {
+                id: "gv3_q28", type: "match", title: "GV 3 - Q28: Matching Synonyms",
+                pairs: [
+                    { q: "whack", a: "hit", mean: "đánh", options: ["dance", "hit", "step", "fix"] },
+                    { q: "tread", a: "step", mean: "bước/giẫm lên", options: ["laugh", "step", "catch", "excite"] },
+                    { q: "arrest", a: "catch", mean: "bắt giữ", options: ["excite", "catch", "fix", "hit"] },
+                    { q: "mend", a: "fix", mean: "sửa chữa", options: ["fix", "dance", "laugh", "step"] },
+                    { q: "thrill", a: "excite", mean: "làm phấn khích", options: ["fix", "excite", "hit", "catch"] }
+                ]
+            },
+            {
+                id: "gv3_q29", type: "match", title: "GV 3 - Q29: Word Pairing",
+                pairs: [
+                    { q: "millionaire", a: "businessmen", mean: "doanh nhân triệu phú", options: ["size", "businessmen", "employee", "wipers"] },
+                    { q: "epidemic", a: "proportions", mean: "quy mô dịch bệnh", options: ["businessmen", "proportions", "employee", "joint"] },
+                    { q: "diploma", a: "subject", mean: "môn học văn bằng", options: ["employee", "subject", "size", "wipers"] }, 
+                    { q: "windscreen", a: "wipers", mean: "gạt nước kính chắn gió", options: ["wipers", "joint", "businessmen", "size"] },
+                    { q: "programme", a: "joint", mean: "chương trình liên kết", options: ["subject", "joint", "proportions", "employee"] }
+                ]
+            },
+            {
+                id: "gv3_q30", type: "match", title: "GV 3 - Q30: Sentence Completion",
+                pairs: [
+                    { q: "I don't buy ___ food because it's expensive.", a: "organic", mean: "hữu cơ", options: ["organic", "catch", "secret", "furious"] },
+                    { q: "He was an excitable man and was very ___ about being unhappy.", a: "vocal", mean: "lớn tiếng/thẳng thắn", options: ["catch", "vocal", "secret", "extravagant"] },
+                    { q: "It was one of the ugliest things. It was absolutely ___", a: "vicious", mean: "xấu xa/dữ dội", options: ["secret", "vicious", "furious", "organic"] },
+                    { q: "They'd spent a huge amount of money. It was very ___", a: "extravagant", mean: "phung phí/đắt đỏ", options: ["extravagant", "catch", "organic", "vocal"] },
+                    { q: "When the player found out he'd lost, he was absolutely ___", a: "furious", mean: "giận dữ", options: ["furious", "secret", "vicious", "extravagant"] }
+                ]
+            }
+        ];
+
+        // ================= NEW DATA: LISTENING PART 3 =================
+        const dataListening3 = [
+            { id: 1, title: "Music and Singer", tip: "Ca sĩ sinh năm 2010", code: "2010" },
+            { id: 2, title: "The Local Central", tip: "Trung tâm địa phương được xây năm 2011", code: "2011" },
+            { id: 3, title: "Urban Farming", tip: "Ông nông dân có 10 vợ và 20 người con", code: "1020" },
+            { id: 4, title: "Information Technology", tip: "Công nghệ thế kỷ 21 có nhiều người gõ phím bằng 10 ngón tay", code: "2110" },
+            { id: 5, title: "Art", tip: "Nghệ sĩ 21 năm kinh nghiệm mà không vẽ được 1 bức tranh nào nên hồn", code: "2101" },
+            { id: 6, title: "Politics", tip: "Chính trị không (0) thể có 2 vua 1 nước nếu vậy sẽ không (0) tồn tại được", code: "0210" },
+            { id: 7, title: "Community Design", tip: "Tôi không (0) muốn thiết kế 1 ngôi nhà có 2 tầng mà không (0) có ban công", code: "0120" },
+            { id: 8, title: "University", tip: "Trường đại học không (0) có 1 sinh viên nào trong 2 năm liền, 1 năm sau thì phá sản", code: "0121" },
+            { id: 9, title: "Subject and Beauty", tip: "1 chàng trai tán 2 cô gái đẹp không (0) biết sao mà làm 2 người đều có bầu", code: "1202" },
+            { id: 10, title: "Change in Workplace", tip: "12 năm cống hiến cho công việc, nhưng không một (01) ai công nhận năng lực", code: "1201" },
+            { id: 11, title: "Actor", tip: "Tìm thấy hóa thạch của một diễn viên thời cổ đại có niên đại 1200 năm", code: "1200" },
+            { id: 12, title: "Internet", tip: "Tiền mạng internet của bạn không (0) phải 200k mà là miễn phí (0)", code: "0200" }
+        ];
+
+        // ================= COMPONENTS =================
+
+        // --- COMPONENT MỚI: IDIOMS ---
+        const IdiomsPage = () => {
+            const [filter, setFilter] = useState("");
+            
+            const filteredData = dataIdioms.filter(item => 
+                item.phrase.toLowerCase().includes(filter.toLowerCase()) || 
+                item.mean.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            return (
+                <div className="max-w-5xl mx-auto p-4 mt-4">
+                    <div className="bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl p-6 text-white shadow-lg mb-8">
+                        <h2 className="text-3xl font-bold mb-2">Common English Idioms</h2>
+                        <p className="opacity-90">Các thành ngữ thông dụng giúp bạn đạt điểm cao trong Aptis Speaking & Writing.</p>
+                        
+                        <div className="mt-6 relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                                <IconSearch />
+                            </div>
+                            <input 
+                                type="text" 
+                                placeholder="Tìm kiếm thành ngữ (Tiếng Anh hoặc Tiếng Việt)..." 
+                                className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-800 shadow-sm focus:ring-2 focus:ring-pink-300 outline-none font-medium"
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filteredData.map((item, idx) => (
+                            <div key={idx} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:border-pink-200 group">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="font-bold text-xl text-slate-800 group-hover:text-pink-600 transition-colors">{item.phrase}</h3>
+                                    <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded font-mono">#{idx + 1}</span>
+                                </div>
+                                <div className="text-rose-600 font-medium mt-1 mb-3">{item.mean}</div>
+                                <div className="bg-gray-50 p-3 rounded-lg border-l-4 border-rose-400 text-sm text-gray-700 italic">
+                                    "{item.example}"
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {filteredData.length === 0 && (
+                        <div className="text-center py-10 text-gray-500">
+                            Không tìm thấy thành ngữ nào phù hợp.
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const ReadingPart1 = () => {
+            const [currentIdx, setCurrentIdx] = useState(0);
+            const [userAnswers, setUserAnswers] = useState({});
+            const [isChecked, setIsChecked] = useState(false);
+            const current = dataPart1[currentIdx];
+            
+            const handleCheck = () => setIsChecked(true);
+            const handleReset = () => { setIsChecked(false); setUserAnswers({}); };
+            const next = () => { if(currentIdx < dataPart1.length-1) { setCurrentIdx(c=>c+1); handleReset(); }};
+            const prev = () => { if(currentIdx > 0) { setCurrentIdx(c=>c-1); handleReset(); }};
+
+            return (
+                <div className="max-w-3xl mx-auto p-4 bg-white rounded-xl shadow-md mt-4 border border-indigo-50">
+                    <div className="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 className="font-bold text-lg text-indigo-700 truncate">{current.title}</h2>
+                        <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-bold">{currentIdx+1}/{dataPart1.length}</span>
+                    </div>
+                    <div className="mb-6 leading-9 text-gray-800 text-lg">
+                        {current.context && <p className="italic text-gray-500 mb-2 border-l-4 border-indigo-300 pl-2 text-base">{current.context}</p>}
+                        {current.segments.map((seg, i) => {
+                            if(seg.type === 'text') return <span key={i}>{seg.text}</span>;
+                            const isCorrect = userAnswers[seg.id] === seg.correct;
+                            return (
+                                <span key={i} className="inline-block mx-1">
+                                    <select className={`border-2 rounded px-2 py-1 cursor-pointer font-medium text-base ${isChecked ? (isCorrect ? 'bg-green-100 border-green-500 text-green-800' : 'bg-red-100 border-red-500 text-red-800') : 'border-indigo-200 hover:border-indigo-400'}`}
+                                        value={userAnswers[seg.id] || ""} onChange={(e) => !isChecked && setUserAnswers({...userAnswers, [seg.id]: e.target.value})} >
+                                        <option value="" disabled>...</option>
+                                        {seg.options.map(o => <option key={o.word} value={o.word}>{o.word}</option>)}
+                                    </select>
+                                    {isChecked && !isCorrect && <span className="text-white bg-green-500 px-1.5 py-0.5 rounded ml-1 text-sm font-bold shadow-sm">{seg.correct}</span>}
+                                </span>
+                            );
+                        })}
+                    </div>
+                    <div className="flex justify-center gap-4">
+                        <button onClick={prev} disabled={currentIdx===0} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Trước</button>
+                        {!isChecked ? <button onClick={handleCheck} className="px-8 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-lg">Kiểm tra</button> : <button onClick={handleReset} className="px-8 py-2 bg-amber-500 text-white rounded-lg font-bold shadow-lg">Làm lại</button>}
+                        <button onClick={next} disabled={currentIdx===dataPart1.length-1} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Sau</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const ReadingPart5 = () => {
+            const [currentIdx, setCurrentIdx] = useState(0);
+            const [items, setItems] = useState([]);
+            const [isCorrect, setIsCorrect] = useState(null);
+            const current = dataPart5[currentIdx];
+
+            useEffect(() => {
+                const shuffled = [...current.correctOrder].sort(() => Math.random() - 0.5);
+                setItems(shuffled);
+                setIsCorrect(null);
+            }, [currentIdx]);
+
+            const dragItem = useRef();
+            const dragOverItem = useRef();
+            const dragStart = (e, position) => { dragItem.current = position; e.target.classList.add('dragging'); };
+            const dragEnter = (e, position) => { dragOverItem.current = position; };
+            const dragEnd = (e) => {
+                e.target.classList.remove('dragging');
+                const copyListItems = [...items];
+                const dragItemContent = copyListItems[dragItem.current];
+                copyListItems.splice(dragItem.current, 1);
+                copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+                dragItem.current = null;
+                dragOverItem.current = null;
+                setItems(copyListItems);
+                setIsCorrect(null);
+            };
+            const checkOrder = () => {
+                const currentString = JSON.stringify(items);
+                const correctString = JSON.stringify(current.correctOrder);
+                setIsCorrect(currentString === correctString);
+            };
+
+            return (
+                <div className="max-w-3xl mx-auto p-4 bg-white rounded-xl shadow-md mt-4 border border-purple-50">
+                    <div className="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 className="font-bold text-lg text-purple-700">Part 5: {current.title}</h2>
+                        <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold">{currentIdx+1}/{dataPart5.length}</span>
+                    </div>
+                    <div className="bg-amber-50 p-4 rounded-lg mb-6 text-sm text-amber-800 border border-amber-200 flex gap-2">
+                        <span className="text-xl">💡</span><div><strong className="block mb-1">Mẹo từ vựng:</strong> {current.tip}</div>
+                    </div>
+                    <div className="space-y-3 mb-6">
+                        {items.map((item, index) => (
+                            <div key={index} draggable onDragStart={(e) => dragStart(e, index)} onDragEnter={(e) => dragEnter(e, index)} onDragEnd={dragEnd} onDragOver={(e) => e.preventDefault()}
+                                className={`draggable-item p-4 rounded-lg border-2 flex items-center gap-4 bg-white ${isCorrect === true ? 'border-green-400 bg-green-50' : isCorrect === false ? 'border-red-300' : 'border-gray-100 hover:border-purple-300'}`}>
+                                <span className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shadow-sm ${isCorrect === true ? 'bg-green-200 text-green-800' : 'bg-gray-100 text-gray-500'}`}>{index + 1}</span>
+                                <span className="font-medium text-gray-700 select-none">{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                    {isCorrect === true && <div className="text-center text-green-600 font-bold mb-4 text-lg">🎉 Chính xác!</div>}
+                    {isCorrect === false && <div className="text-center text-red-500 font-bold mb-4">Sai rồi, thử lại nhé!</div>}
+                    <div className="flex justify-center gap-4">
+                        <button onClick={() => setCurrentIdx(Math.max(0, currentIdx-1))} disabled={currentIdx===0} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Trước</button>
+                        <button onClick={checkOrder} className="px-8 py-2 bg-purple-600 text-white rounded-lg font-bold shadow-lg">Kiểm tra</button>
+                        <button onClick={() => setCurrentIdx(Math.min(dataPart5.length-1, currentIdx+1))} disabled={currentIdx===dataPart5.length-1} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Sau</button>
+                    </div>
+                </div>
+            );
+        };
+        
+        const ReadingPart23 = () => {
+            const [currentIdx, setCurrentIdx] = useState(0);
+            const [items, setItems] = useState([]);
+            const [isCorrect, setIsCorrect] = useState(null);
+            const current = dataPart23[currentIdx];
+
+            useEffect(() => {
+                const shuffled = [...current.items].sort(() => Math.random() - 0.5);
+                setItems(shuffled);
+                setIsCorrect(null);
+            }, [currentIdx]);
+
+            const dragItem = useRef();
+            const dragOverItem = useRef();
+            const dragStart = (e, position) => { dragItem.current = position; e.target.classList.add('dragging'); };
+            const dragEnter = (e, position) => { dragOverItem.current = position; };
+            const dragEnd = (e) => {
+                e.target.classList.remove('dragging');
+                const copyListItems = [...items];
+                const dragItemContent = copyListItems[dragItem.current];
+                copyListItems.splice(dragItem.current, 1);
+                copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+                dragItem.current = null;
+                dragOverItem.current = null;
+                setItems(copyListItems);
+                setIsCorrect(null);
+            };
+            const checkOrder = () => {
+                const currentString = JSON.stringify(items);
+                const correctString = JSON.stringify(current.items); 
+                setIsCorrect(currentString === correctString);
+            };
+
+            return (
+                <div className="max-w-3xl mx-auto p-4 bg-white rounded-xl shadow-md mt-4 border border-blue-50">
+                    <div className="flex justify-between items-center mb-4 border-b pb-2">
+                        <h2 className="font-bold text-lg text-blue-700">Part 2-3: {current.title}</h2>
+                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">{currentIdx+1}/{dataPart23.length}</span>
+                    </div>
+
+                    <div className="bg-gray-100 p-3 rounded mb-4 text-gray-700 font-medium italic border-l-4 border-gray-400">
+                        {current.fixed}
+                    </div>
+                    
+                    <div className="space-y-3 mb-6">
+                        {items.map((item, index) => (
+                            <div key={index} draggable onDragStart={(e) => dragStart(e, index)} onDragEnter={(e) => dragEnter(e, index)} onDragEnd={dragEnd} onDragOver={(e) => e.preventDefault()}
+                                className={`draggable-item p-4 rounded-lg border-2 flex items-center gap-4 bg-white ${isCorrect === true ? 'border-green-400 bg-green-50' : isCorrect === false ? 'border-red-300' : 'border-gray-100 hover:border-blue-300'}`}>
+                                <span className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold shadow-sm ${isCorrect === true ? 'bg-green-200 text-green-800' : 'bg-gray-100 text-gray-500'}`}>{index + 1}</span>
+                                <span className="font-medium text-gray-700 select-none">{item}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {isCorrect === true && (
+                        <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-4 animate-fade-in">
+                            <div className="text-center text-green-600 font-bold mb-2 text-lg">🎉 Chính xác!</div>
+                            <div className="text-gray-800 text-sm leading-relaxed">
+                                <strong>Bản dịch:</strong> {current.translation}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {isCorrect === false && <div className="text-center text-red-500 font-bold mb-4">Sai rồi, thử lại nhé!</div>}
+
+                    <div className="flex justify-center gap-4">
+                        <button onClick={() => setCurrentIdx(Math.max(0, currentIdx-1))} disabled={currentIdx===0} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Trước</button>
+                        <button onClick={checkOrder} className="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg">Kiểm tra</button>
+                        <button onClick={() => setCurrentIdx(Math.min(dataPart23.length-1, currentIdx+1))} disabled={currentIdx===dataPart23.length-1} className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50">Sau</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const ListeningPart2 = () => {
+            const [currentId, setCurrentId] = useState(1);
+            const [userAnswers, setUserAnswers] = useState({});
+            const current = dataListening.find(item => item.id === currentId) || dataListening[0]; 
+            const [playingId, setPlayingId] = useState(null);
+            const synth = window.speechSynthesis;
+
+            useEffect(() => { 
+                setUserAnswers({}); 
+                setPlayingId(null);
+                if (synth) synth.cancel();
+                return () => synth && synth.cancel();
+            }, [currentId]);
+
+            const handleSelect = (itemId, optionId) => { 
+                if (!current || !current.items) return;
+                const item = current.items.find(i => i.id === itemId);
+                if (userAnswers[itemId] === item.correct) return; // Nếu đã chọn đúng thì khóa
+                setUserAnswers(prev => ({...prev, [itemId]: optionId})); 
+            };
+
+            const handlePlay = (id, text) => {
+                if (!synth) return;
+                synth.cancel(); 
+                if (playingId === id) {
+                    setPlayingId(null);
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; 
+                utterance.rate = 0.9; 
+                utterance.onend = () => { setPlayingId(null); };
+                synth.speak(utterance);
+                setPlayingId(id);
+            };
+
+            if (!current) return <div className="p-10 text-center">Loading...</div>;
+
+            return (
+                <div className="max-w-6xl mx-auto p-4 mt-4 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="lg:col-span-1 bg-white p-4 rounded-xl shadow-sm h-fit max-h-[80vh] overflow-y-auto border border-gray-100">
+                        <h3 className="font-bold text-gray-500 mb-4 text-xs uppercase tracking-wider">Danh sách chủ đề</h3>
+                        <div className="space-y-1">
+                            {dataListening.map(item => (
+                                <button key={item.id} onClick={() => setCurrentId(item.id)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${currentId === item.id ? 'bg-teal-600 text-white font-bold' : 'hover:bg-gray-100 text-gray-700'}`}>
+                                    {item.id}. {item.title}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="lg:col-span-3 space-y-6">
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-teal-50">
+                            <h2 className="font-bold text-2xl text-teal-800 mb-2">{current.title}</h2>
+                            <div className="text-sm text-gray-500 italic mb-6">Đọc đoạn văn và bấm nút loa để nghe.</div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 sticky top-0 bg-white z-10 py-4 border-b border-gray-100">
+                                {current.options.map(opt => (
+                                    <div key={opt.id} className="bg-teal-50 border border-teal-100 p-2 rounded text-center shadow-sm">
+                                        <span className="font-bold text-teal-700 block">{opt.id}</span>
+                                        <span className="text-xs text-gray-600 font-medium">{opt.text}</span>
+                                        <span className="block text-[10px] text-gray-500 italic mt-1">{opt.mean}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="space-y-8">
+                                {current.items.map((item, idx) => {
+                                    const userAnswer = userAnswers[item.id];
+                                    const isCorrect = userAnswer === item.correct; // Đã chọn đúng
+                                    const isWrong = userAnswer && !isCorrect; // Đã chọn nhưng sai
+
+                                    return (
+                                        <div key={item.id} className="relative bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                            <div className="absolute -left-3 -top-3 bg-slate-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-md">{idx + 1}</div>
+                                            <div className="mb-4">
+                                                <div className="flex items-start gap-3">
+                                                    <button onClick={() => handlePlay(item.id, item.transcript)} className={`shrink-0 p-2 rounded-full transition-colors flex items-center gap-2 ${isPlaying ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-teal-100 text-teal-600 hover:bg-teal-200'}`} title={isPlaying ? "Dừng" : "Nghe"}>
+                                                        {isPlaying ? <IconStop /> : <IconSpeaker />}
+                                                        <span className="text-xs font-bold">{isPlaying ? "Dừng" : "Nghe"}</span>
+                                                    </button>
+                                                    <p className="text-slate-800 text-lg leading-relaxed font-medium pt-1">"{item.transcript}"</p>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {current.options.map(opt => {
+                                                    let btnClass = "bg-white border-gray-300 text-gray-600 hover:border-teal-400";
+                                                    
+                                                    // Logic màu sắc
+                                                    if (opt.id === item.correct) {
+                                                        if (isCorrect) {
+                                                            // Người dùng chọn đúng -> Màu xanh nền
+                                                            btnClass = "bg-green-100 border-green-500 text-green-800 font-bold ring-2 ring-green-200"; 
+                                                        } else if (isWrong) {
+                                                            // Người dùng chọn sai -> Hiện đáp án đúng lên (màu xanh viền/nhạt) để gợi ý
+                                                            btnClass = "bg-white border-green-500 text-green-700 font-bold border-2 shadow-[0_0_10px_rgba(34,197,94,0.4)]"; 
+                                                        }
+                                                    } else if (userAnswer === opt.id) {
+                                                        // Đây là đáp án người dùng chọn (và nó sai, vì nếu đúng đã vào if trên)
+                                                        btnClass = "bg-red-100 border-red-500 text-red-800 animate-pulse";
+                                                    } else {
+                                                        // Các đáp án khác
+                                                        if (isCorrect) btnClass = "opacity-40 bg-gray-50 border-gray-200"; // Làm mờ nếu đã xong câu này
+                                                    }
+                                                    
+                                                    return (
+                                                        <button 
+                                                            key={opt.id} 
+                                                            onClick={() => handleSelect(item.id, opt.id)} 
+                                                            disabled={isCorrect} // Chỉ disable khi đã làm đúng
+                                                            className={`p-3 rounded-lg border-2 text-left transition-all text-sm flex items-center gap-3 ${btnClass}`}
+                                                        >
+                                                            <span className="font-bold text-lg min-w-[20px]">{opt.id}.</span><span>{opt.text}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                            
+                                            {/* Feedback text underneath */}
+                                            {isWrong && (
+                                                <div className="mt-3 text-red-600 text-sm font-bold bg-red-50 p-2 rounded border border-red-200 flex items-center gap-2 animate-fade-in">
+                                                    <span>❌</span> Sai rồi! Đáp án đúng là <span className="font-extrabold text-green-600 px-1 rounded bg-green-50 border border-green-200">{item.correct}</span>. Hãy chọn lại nhé!
+                                                </div>
+                                            )}
+                                            {isCorrect && (
+                                                <div className="mt-3 text-green-600 text-sm font-bold bg-green-50 p-2 rounded border border-green-200 animate-fade-in flex items-center gap-2">
+                                                    <span>✅</span> Chính xác!
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="mt-8 flex justify-center">
+                                <button onClick={() => { setUserAnswers({}); window.scrollTo(0,0); }} className="px-10 py-3 bg-amber-500 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-amber-600 active:scale-95 transition-transform">Làm Lại</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const GVComponent = ({ data }) => {
+            const [answers, setAnswers] = useState({});
+            useEffect(() => { setAnswers({}); }, [data]);
+            const handleSelect = (qId, val) => { setAnswers(prev => ({...prev, [qId]: val})); };
+            const reset = () => { setAnswers({}); window.scrollTo(0,0); };
+
+            return (
+                <div className="max-w-4xl mx-auto p-4 mt-4 space-y-8">
+                    {data.map((group, idx) => (
+                        <div key={group.id} className="bg-white p-5 rounded-xl shadow border border-blue-100">
+                            <h3 className="font-bold text-lg text-blue-800 mb-4 border-b pb-2">{group.title}</h3>
+                            <div className="space-y-4">
+                                {group.pairs.map((item, i) => {
+                                    const answerKey = `${group.id}_${i}`;
+                                    const userAnswer = answers[answerKey];
+                                    const isAnswered = userAnswer !== undefined;
+                                    const isCorrect = userAnswer === item.a;
+                                    return (
+                                        <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-slate-50 rounded-lg">
+                                            <div className="flex-1 font-medium text-slate-700 text-lg">{i+1}. {item.q} {item.q.includes("...") ? "" : "→"}</div>
+                                            <div className="flex-1">
+                                                <select value={userAnswer || ""} onChange={(e) => handleSelect(answerKey, e.target.value)}
+                                                    className={`w-full p-2 border-2 rounded-lg cursor-pointer font-bold transition-colors ${isAnswered ? (isCorrect ? "bg-green-100 border-green-500 text-green-700" : "bg-red-100 border-red-500 text-red-700") : "bg-white border-blue-200 hover:border-blue-400"}`}>
+                                                    <option value="" disabled>--- Chọn từ ---</option>
+                                                    {item.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                                </select>
+                                                {isAnswered && !isCorrect && <div className="text-sm text-red-600 font-bold mt-2 pl-1 bg-red-50 p-2 rounded border border-red-200 animate-pulse">❌ Sai rồi! Đáp án đúng: <span className="text-green-700 uppercase">{item.a}</span> <span className="text-gray-600 italic">({item.mean})</span></div>}
+                                                {isAnswered && isCorrect && <div className="text-sm text-green-600 font-bold mt-1 pl-1">✅ Chính xác! <span className="text-gray-600 italic font-normal">({item.mean})</span></div>}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                    <div className="flex justify-center pb-6">
+                        <button onClick={reset} className="px-12 py-3 bg-amber-500 text-white rounded-full font-bold text-xl shadow-xl hover:bg-amber-600 transition-transform hover:scale-105">Làm Lại</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const ListeningPart3 = () => {
+            const [inputs, setInputs] = useState({});
+            const [results, setResults] = useState({});
+            
+            // Hàm check: Tự động loại bỏ khoảng trắng khi so sánh
+            const check = (id, correctCode) => { 
+                const userVal = (inputs[id] || "").trim();
+                const isCorrect = userVal === correctCode;
+                setResults(prev => ({ ...prev, [id]: isCorrect })); 
+            };
+
+            // Hàm hiện đáp án luôn mà không cần nhập
+            const showAnswer = (id) => {
+                setResults(prev => ({ ...prev, [id]: 'SHOW' }));
+            };
+
+            return (
+                <div className="max-w-5xl mx-auto p-4 mt-4">
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded shadow-sm">
+                        <h3 className="font-bold text-yellow-800 text-lg">💡 Quy tắc vàng Part 3:</h3>
+                        <ul className="list-disc pl-5 text-yellow-700 mt-2 space-y-1">
+                            <li><strong>Nam (Man)</strong> = số 1, <strong>Nữ (Woman)</strong> = số 2, <strong>Both</strong> = 0</li>
+                        </ul>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {dataListening3.map(item => (
+                            <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h4 className="font-bold text-lg text-slate-800">{item.title}</h4>
+                                    <span className="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded-full">Topic {item.id}</span>
+                                </div>
+                                <div className="text-sm text-slate-600 italic mb-4 bg-slate-50 p-3 rounded border border-slate-100">"{item.tip}"</div>
+                                <div className="flex gap-2 mb-2">
+                                    <input type="text" placeholder="Nhập mã (VD: 2010)" maxLength="4"
+                                        className={`flex-1 border-2 rounded-lg px-3 py-2 text-center font-mono text-lg tracking-widest font-bold ${results[item.id] === true ? 'border-green-500 bg-green-50 text-green-700' : results[item.id] === false ? 'border-red-500 bg-red-50 text-red-700' : 'border-slate-300 focus:border-blue-500'}`}
+                                        value={inputs[item.id] || ""} onChange={(e) => { setInputs({...inputs, [item.id]: e.target.value}); setResults({...results, [item.id]: null}); }} />
+                                    
+                                    <button onClick={() => check(item.id, item.code)} className="bg-blue-600 text-white px-3 rounded-lg font-bold hover:bg-blue-700 transition-colors text-sm">Check</button>
+                                    <button onClick={() => showAnswer(item.id)} className="bg-gray-200 text-gray-600 px-3 rounded-lg font-bold hover:bg-gray-300 transition-colors" title="Xem đáp án"><IconEye /></button>
+                                </div>
+
+                                {/* KHU VỰC HIỂN THỊ KẾT QUẢ/ĐÁP ÁN */}
+                                {results[item.id] === true && <div className="mt-2 text-green-600 font-bold text-center bg-green-100 py-1 rounded border border-green-200 animate-fade-in">✅ Chính xác!</div>}
+                                {results[item.id] === false && <div className="mt-2 text-red-600 font-bold text-center bg-red-100 py-1 rounded border border-red-200 animate-pulse">❌ Sai rồi! Đáp án: {item.code}</div>}
+                                {results[item.id] === 'SHOW' && <div className="mt-2 text-blue-600 font-bold text-center bg-blue-100 py-1 rounded border border-blue-200">👉 Đáp án: {item.code}</div>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [tab, setTab] = useState('reading1');
+            const getTabStyle = (active) => `tab-btn flex-1 min-w-[100px] py-4 font-bold text-sm md:text-base border-b-4 transition-colors px-2 text-center ${active ? 'border-blue-600 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`;
+
+            return (
+                <div className="min-h-screen pb-10">
+                    <div className="bg-white shadow-md sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto flex overflow-x-auto no-scrollbar">
+                            <button onClick={() => setTab('reading1')} className={getTabStyle(tab==='reading1')}>Reading P1</button>
+                            <button onClick={() => setTab('reading23')} className={getTabStyle(tab==='reading23')}>Reading P2-3</button>
+                            <button onClick={() => setTab('reading5')} className={getTabStyle(tab==='reading5')}>Reading P5</button>
+                            <button onClick={() => setTab('gv1')} className={getTabStyle(tab==='gv1')}>GV 1</button>
+                            <button onClick={() => setTab('gv2')} className={getTabStyle(tab==='gv2')}>GV 2</button>
+                            <button onClick={() => setTab('gv3')} className={getTabStyle(tab==='gv3')}>GV 3</button>
+                            <button onClick={() => setTab('listening2')} className={getTabStyle(tab==='listening2')}>Listening P2</button>
+                            <button onClick={() => setTab('listening3')} className={getTabStyle(tab==='listening3')}>Listening P3</button>
+                            {/* --- NEW TAB IDIOMS --- */}
+                            <button onClick={() => setTab('idioms')} className={`${getTabStyle(tab==='idioms')} text-rose-600 border-rose-500 bg-rose-50 hover:bg-rose-100`}>⭐ Idioms</button>
+                        </div>
+                    </div>
+
+                    <div className="fade-in pt-2 px-2 md:px-6">
+                        {tab === 'reading1' && <ReadingPart1 />}
+                        {tab === 'reading23' && <ReadingPart23 />}
+                        {tab === 'reading5' && <ReadingPart5 />}
+                        {tab === 'gv1' && <GVComponent data={dataGV1} />}
+                        {tab === 'gv2' && <GVComponent data={dataGV2} />}
+                        {tab === 'gv3' && <GVComponent data={dataGV3} />}
+                        {tab === 'listening2' && <ListeningPart2 />}
+                        {tab === 'listening3' && <ListeningPart3 />}
+                        {tab === 'idioms' && <IdiomsPage />}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
